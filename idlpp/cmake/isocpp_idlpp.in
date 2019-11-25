@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Copyright(c) 2006 to 2019 ADLINK Technology Limited and others
+#
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:@PACKAGE_PREFIX_DIR@/lib
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:@PACKAGE_PREFIX_DIR@/lib
+
+if [ "@PACKAGE_PREFIX_DIR@" = "" ]; then
+    export LITE_HOME=@CMAKE_BINARY_DIR@
+else
+    export LITE_HOME=@PACKAGE_PREFIX_DIR@
+fi
+
+#
+# There are numerous memory leaks in idlpp. It is too
+# much effort to actually fix all those memory leaks as this implementation will be replaced by a proper idl compiler in the near future.
+# So, take the easy (and really unwanted) way out and suppress the leak detection
+# of the address sanitizer when it is enabled.
+# Only to be able to generate source files from idl when the sanitizer is enabled.
+#
+export ASAN_OPTIONS="detect_leaks=false:leak_check_at_exit=false"
+
+java -classpath "@IDLCPP_JARS_DIR@/*" com.prismtech.lite.compilers.Idlcpp -idlpp "@IDLPP_EXE@" -templates "@IDLPP_TEMPLATES_DIR@" -l isocpp "$@"

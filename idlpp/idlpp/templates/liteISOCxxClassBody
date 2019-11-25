@@ -1,0 +1,69 @@
+namespace org { namespace eclipse { namespace cyclonedds { namespace topic {
+template <>
+class TopicTraits<$(scopedtypename)>
+{
+public:
+    static ::org::eclipse::cyclonedds::topic::DataRepresentationId_t getDataRepresentationId()
+    {
+        return ::org::eclipse::cyclonedds::topic::OSPL_REPRESENTATION;
+    }
+
+    static ::std::vector<uint8_t> getMetaData()
+    {
+        return ::std::vector<uint8_t>();
+    }
+
+    static ::std::vector<uint8_t> getTypeHash()
+    {
+        return ::std::vector<uint8_t>();
+    }
+
+    static ::std::vector<uint8_t> getExtentions()
+    {
+        return ::std::vector<uint8_t>();
+    }
+
+    static const char *getKeyList()
+    {
+        return "$(keyList)";
+    }
+
+    static const char *getTypeName()
+    {
+        return "$(internaltypename)";
+    }
+
+    static const dds_topic_descriptor_t *getDescriptor()
+    {
+        return &$(uniquetypename)_desc;
+    }
+
+    static copyInFunction getCopyIn()
+    {
+        return (copyInFunction) __$(uniquetypename)__copyIn;
+    }
+
+    static copyOutFunction getCopyOut()
+    {
+        return (copyOutFunction) __$(uniquetypename)__copyOut;
+    }
+
+    static size_t getSampleSize()
+    {
+        return sizeof($(uniquetypename));
+    }
+};
+}}}}
+
+namespace dds { namespace topic {
+template <>
+struct topic_type_name<$(scopedtypename)>
+{
+    static std::string value()
+    {
+        return org::eclipse::cyclonedds::topic::TopicTraits<$(scopedtypename)>::getTypeName();
+    }
+};
+}}
+
+REGISTER_TOPIC_TYPE($(scopedtypename))

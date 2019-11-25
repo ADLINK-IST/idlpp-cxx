@@ -1,0 +1,19 @@
+@echo off
+REM Copyright(c) 2006 to 2019 ADLINK Technology Limited and others
+
+set "PATH=@CMAKE_RUNTIME_OUTPUT_DIRECTORY@;@CMAKE_RUNTIME_OUTPUT_DIRECTORY@/../lib;%PATH%"
+
+if "@PACKAGE_PREFIX_DIR@"=="" (
+    set LITE_HOME=@CMAKE_BINARY_DIR@
+) else (
+    set LITE_HOME=@PACKAGE_PREFIX_DIR@
+)
+
+if "%CLASSPATH%"=="" (
+    set "CLASSPATH=@IDLCPP_JARS_DIR@/*"
+) else (
+    set "CLASSPATH=@IDLCPP_JARS_DIR@/*;%CLASSPATH%"
+)
+
+"@Java_JAVA_EXECUTABLE@" com.prismtech.lite.compilers.Idlcpp -idlpp "@IDLPP_EXE@" -templates "@IDLPP_TEMPLATES_DIR@" -l isocpp %*
+

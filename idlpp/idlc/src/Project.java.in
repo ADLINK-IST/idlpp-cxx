@@ -1,0 +1,11 @@
+/*
+ * Copyright(c) 2006 to 2019 ADLINK Technology Limited and others
+ */
+package com.prismtech.lite;
+
+public class Project
+{
+  public static String version  = "@PROJECT_VERSION@";
+  public static String name     = "@CMAKE_PROJECT_NAME@";
+  public static String nameCaps = "@CMAKE_PROJECT_NAME_CAPS@";
+}
