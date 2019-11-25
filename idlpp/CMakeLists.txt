@@ -1,12 +1,6 @@
 #
 # Copyright(c) 2006 to 2019 ADLINK Technology Limited and others
 #
-find_package(CycloneDDS REQUIRED)
-if(NOT CycloneDDS_FOUND)
-  message(WARNING "Could not find Eclipse Cyclone DDS - skipping '${CMAKE_PROJECT_NAME}'")
-  return()
-endif()
-  
 
 # Some locations.
 set(IDLPP_OSPLI "${CMAKE_CURRENT_SOURCE_DIR}/ppresources/ospli")

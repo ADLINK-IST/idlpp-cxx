@@ -7,7 +7,7 @@ This project provides an idl compiler to compile datatypes that can be used in t
 In order to build the Idl compiler you need a Linux, Mac or Windows 10 machine with the following
 installed on your host:
   
-  * [CycloneDDS](https://github.com/eclipse-cyclonedds/cyclonedds/) 
+  * Git
   * [CMake](https://cmake.org/download/), version 3.7 or later.  (Version 3.6 should work but you
     will have to edit the ``cmake_minimum_required`` version.)
   * Java JDK, version 8 or later, e.g., [OpenJDK 11](http://jdk.java.net/11/).
@@ -22,7 +22,7 @@ between Linux and macOS on the one hand, and Windows on the other. For Linux or 
     $ git clone https://github.com/ADLINK-IST/idlpp-cxx.git
     $ mkdir build
     $ cd build
-    $ cmake -DCycloneDDS_DIR="path to CycloneDDSConfig.cmake"  <cmake-config_options> ..
+    $ cmake <cmake-config_options> ..
     $ cmake --build .
 
 and for Windows:
@@ -30,7 +30,7 @@ and for Windows:
     $ git clone https://github.com/ADLINK-IST/idlpp-cxx.git
     $ mkdir build
     $ cd build
-    $ cmake -G "<generator-name>" -DCycloneDDS_DIR="path to CycloneDDSConfig.cmake" <cmake-config_options> ..
+    $ cmake -G "<generator-name>" <cmake-config_options> ..
     $ cmake --build .
 
 where you replace ``<generator-name>`` by one of the ways
@@ -61,7 +61,7 @@ This would make the build look like
 
     $ mkdir build
     $ cd build
-    $ cmake -DCycloneDDS_DIR="path to CycloneDDSConfig.cmake" -DCMAKE_INSTALL_PREFIX=<install-location>  ..
+    $ cmake -DCMAKE_INSTALL_PREFIX=<install-location>  ..
     $ cmake --build . --target install
 
 Don't forget the generator when building on Windows.

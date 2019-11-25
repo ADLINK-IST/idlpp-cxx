@@ -1,0 +1,103 @@
+resources:
+  repositories:
+  - repository: self
+
+variables:
+   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
+   MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
+
+jobs:
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-16.04'
+  strategy:
+    matrix:
+      Clang 6.0 Release:
+        CC: clang
+        CXX: clang++
+        BuildType: Release
+        USE_SANITIZER: none
+        GENERATOR: "Unix Makefiles"
+
+      GCC 5.4 Release:
+        BuildType: Release
+        USE_SANITIZER: none
+        GENERATOR: "Unix Makefiles"
+  steps:
+     - task: UsePythonVersion@0
+       inputs:
+         versionSpec: '3.7'
+     - template: build.yml
+    
+- job: Windows_VS19
+  pool:
+    vmImage: 'windows-2019'
+  strategy:
+    matrix:
+      x86_64 Release:
+        BuildType: Release
+        GENERATOR: "Visual Studio 16 2019"
+        USE_SANITIZER: none
+   
+  steps:
+     - task: UsePythonVersion@0
+       inputs:
+         versionSpec: '3.7'
+     - template: build.yml
+ 
+- job: Windows_VS17
+  pool:
+    vmImage: 'vs2017-win2016'
+  strategy:
+    matrix: 
+      x86_64 Release:
+        BuildType: Release
+        GENERATOR: "Visual Studio 15 2017 Win64"
+        USE_SANITIZER: none
+  
+  steps:
+     - task: UsePythonVersion@0
+       inputs:
+         versionSpec: '3.7'
+     - template: build.yml
+ 
+            
+- job: MacOS_10_13
+  pool:
+    vmImage: 'macOS-10.13'
+  strategy:
+    matrix:
+      Release Xcode 10.0:
+        BuildType: Release
+        USE_SANITIZER: none
+        GENERATOR: "Unix Makefiles"
+  steps:
+     - task: UsePythonVersion@0
+       inputs:
+         versionSpec: '3.7'
+     - script: |
+         sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
+     - template: build.yml   
+
+- job: MacOS_10_14
+  pool:
+    vmImage: 'macOS-10.14'
+  strategy:
+    matrix:
+      Release Xcode 11.0:
+        BuildType: Release
+        USE_SANITIZER: none
+        GENERATOR: "Unix Makefiles"
+  steps:
+     - task: UsePythonVersion@0
+       inputs:
+         versionSpec: '3.7'
+     - bash: |
+         /bin/bash -c "sudo xcode-select -s /Applications/Xcode_11.app/Contents/Developer"
+         clang --version
+       displayName: 'Set Xcode11 as default'
+       failOnStderr: false
+     - script: |
+         sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
+     - template: build.yml   
+

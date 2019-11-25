@@ -1,0 +1,48 @@
+steps:
+   - task: CacheBeta@0
+     inputs:
+       key: maven
+       path: $(MAVEN_CACHE_FOLDER)
+     displayName: Cache Maven local repo
+   - bash: |
+       mkdir build
+       cd build
+   - task: CMake@1
+     displayName: 'CMake configure core product'
+     inputs:
+       cmakeArgs: '-DCMAKE_BUILD_TYPE=$(BuildType)
+          -DCMAKE_INSTALL_PREFIX=$(Build.SourcesDirectory)/build/install
+          -DUSE_SANITIZER=$(USE_SANITIZER)
+          -G "$(GENERATOR)" ..' 
+   - bash: |
+      case "$(GENERATOR)" in
+         "Unix Makefiles")
+           cmake --build . --config $(BuildType) --target install -- -j 4
+           ;;
+         "Visual Studio "*)
+           cmake --build . --config $(BuildType) --target install -- -nologo -verbosity:minimal -maxcpucount -p:CL_MPCount=2
+           ;;
+         *)
+           cmake --build . --config $(BuildType) --target install
+           ;;
+       esac
+     workingDirectory: build
+     failOnStderr: false
+     displayName: 'Compile'
+   - script: |
+       cmake --build . --config $(BuildType) --target package
+     workingDirectory: build
+     failOnStderr: false
+     displayName: 'Create installer'
+   - task: CopyFiles@2
+     inputs:
+       sourceFolder: '$(Build.SourcesDirectory)'
+       targetFolder: '$(Build.ArtifactStagingDirectory)'
+       contents: 'build/?(*.deb|*.msi|*.tar.gz|*.tar|*.zip|*.sh)'
+     displayName: 'Copy installer'
+   - task: PublishBuildArtifacts@1
+     inputs:
+       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+       artifactName: idlpp_$(AGENT.JOBNAME)
+     displayName: 'Publish installer'
+     

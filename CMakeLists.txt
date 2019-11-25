@@ -4,6 +4,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 # Set module path before defining project so platform files will work.
+include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/idlpp/cmake/modules)
 set(CMAKE_PROJECT_NAME_FULL "CXX Idl compiler for Eclipse CycloneDDS")
 set(PROJECT_NAME "Idlpp-cxx")
