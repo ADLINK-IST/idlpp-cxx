@@ -60,24 +60,6 @@ jobs:
        inputs:
          versionSpec: '3.7'
      - template: build.yml
- 
-            
-- job: MacOS_10_13
-  pool:
-    vmImage: 'macOS-10.13'
-  strategy:
-    matrix:
-      Release Xcode 10.0:
-        BuildType: Release
-        USE_SANITIZER: none
-        GENERATOR: "Unix Makefiles"
-  steps:
-     - task: UsePythonVersion@0
-       inputs:
-         versionSpec: '3.7'
-     - script: |
-         sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
-     - template: build.yml   
 
 - job: MacOS_10_14
   pool:
