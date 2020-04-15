@@ -20,6 +20,7 @@ Building the Idl compiler, requires only a few simple steps. There are some smal
 between Linux and macOS on the one hand, and Windows on the other. For Linux or macOS:
 
     $ git clone https://github.com/ADLINK-IST/idlpp-cxx.git
+    $ cd idlpp-cxx
     $ mkdir build
     $ cd build
     $ cmake <cmake-config_options> ..
@@ -28,6 +29,7 @@ between Linux and macOS on the one hand, and Windows on the other. For Linux or 
 and for Windows:
 
     $ git clone https://github.com/ADLINK-IST/idlpp-cxx.git
+    $ cd idlpp-cxx
     $ mkdir build
     $ cd build
     $ cmake -G "<generator-name>" <cmake-config_options> ..
