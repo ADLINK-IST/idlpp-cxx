@@ -48,9 +48,8 @@ idl_seqAllocBuffer(
     idl_typeSpec nextType = idl_typeSeqType(typeSeq);
 
     char* tmp_string = idl_scopedLiteTypeName(nextType);
-    snprintf(buffer, bsize, "(%s == 0) ? 0 : (%s *)dds_alloc(%s * sizeof(%s))",
+    snprintf(buffer, bsize, "(%s == 0) ? 0 : (uint8_t *)dds_alloc(%s * sizeof(%s))",
             length,
-            tmp_string,
             length,
             tmp_string);
     os_free(tmp_string);
@@ -419,8 +418,7 @@ idl_structureMemberOpenClose (
         scopedCxxTypeName = idl_scopeStack(idl_typeUserScope(idl_typeUser(typeSpec)), "::", cxxTypeName);
 
         idl_fileOutPrintf (idl_fileCur(), "    {\n");
-        if ((idl_typeSpecType(nextType) == idl_tbasic) ||
-            (idl_typeSpecType(nextType) == idl_tenum)) {
+        if (idl_isContiguous(idl_typeSpecDef(nextType))) {
                 IDL_PRINTLINE (indent);
                 idl_fileOutPrintf (idl_fileCur(), "        const %s *src = &from->%s();\n\n", scopedCxxTypeName, cid);
                 idl_fileOutPrintf (idl_fileCur(), "        to->%s._maximum = (uint32_t)(*src).max_size();\n", cid);
@@ -430,7 +428,7 @@ idl_structureMemberOpenClose (
         } else {
                 IDL_PRINTLINE (indent);
                 idl_fileOutPrintf (idl_fileCur(), "        const %s *src = &from->%s();\n", scopedCxxTypeName, cid);
-                idl_fileOutPrintf (idl_fileCur(), "        %s *dest0;\n", scopedTargetName);
+                idl_fileOutPrintf (idl_fileCur(), "        uint8_t *dest0;\n");
                 idl_fileOutPrintf (idl_fileCur(), "        uint32_t length0;\n\n");
                 idl_fileOutPrintf (idl_fileCur(), "        length0 = (uint32_t)(*src).size();\n");
                 idl_fileOutPrintf (idl_fileCur(), "        dest0 = %s;\n",
@@ -688,7 +686,15 @@ idl_arrayLoopCopyBody(
                         idl_fileOutPrintf(idl_fileCur(), ".c_str (), %d);\n", maxlen + 1);
                     }
                 } else {
-                    assert (0);
+                    /* Only alternative non-contiguous primitive type is boolean */
+                    assert(idl_typeBasicType (idl_typeBasic(actualType)) == idl_boolean);
+                    IDL_PRINTLINE (loopIndent + indent);
+                    idl_printIndent(loopIndent + indent);
+                    idl_fileOutPrintf(idl_fileCur(), "(%s)", to);
+                    idl_arrayLoopCopyIndex(typeArray);
+                    idl_fileOutPrintf(idl_fileCur(), " = (uint8_t) (%s)", from);
+                    idl_arrayLoopCopyIndex(typeArray);
+                    idl_fileOutPrintf(idl_fileCur(), ";\n");
                 }
                 break;
             case idl_tstruct:
@@ -763,9 +769,15 @@ idl_arrayLoopCopyBody(
                 idl_fileOutPrintf(idl_fileCur(), ".c_str (), %d);\n", maxlen + 1);
             }
         } else {
-            /* QAC EXPECT 3416; No side effect here */
-            printf ("idl_arrayLoopCopyBody: Unexpected type\n");
-            assert (0);
+            /* Only alternative non-contiguous primitive type is boolean */
+            assert(idl_typeBasicType (idl_typeBasic(typeSpec)) == idl_boolean);
+            IDL_PRINTLINE (loopIndent + indent);
+            idl_printIndent(loopIndent + indent);
+            idl_fileOutPrintf(idl_fileCur(), "(%s)", to);
+            idl_arrayLoopCopyIndex(typeArray);
+            idl_fileOutPrintf(idl_fileCur(), " = (uint8_t) (%s)", from);
+            idl_arrayLoopCopyIndex(typeArray);
+            idl_fileOutPrintf(idl_fileCur(), ";\n");
         }
 
         break;
@@ -1156,14 +1168,15 @@ idl_seqLoopCopy (
                         loop_index-1,
                         from,
                         idl_seqIndex(loop_index));
-#if 0
-                idl_fileOutPrintf (idl_fileCur(), "    %s[j%d] = (%s)%s.in();\n",
-                        to,
-                        loop_index-1,
-                        from,
-                        idl_seqIndex(loop_index));
-#endif
             }
+        } else {
+            /* Only alternative non-contiguous primitive type is boolean */
+            assert(idl_typeBasicType (idl_typeBasic(typeSpec)) == idl_boolean);
+            idl_fileOutPrintf (idl_fileCur(), "    %s[j%d] = (uint8_t) ((%s)%s);\n",
+                    to,
+                    loop_index-1,
+                    from,
+                    idl_seqIndex(loop_index));
         }
         break;
     case idl_tstruct:
@@ -1230,8 +1243,14 @@ idl_seqLoopCopy (
                             maxlen + 1);
                 }
             } else {
-                printf ("idl_seqLoopCopy: Unexpected type\n");
-                assert (0);
+                /* Only alternative non-contiguous primitive type is boolean */
+                assert(idl_typeBasicType (idl_typeBasic(typeSpec)) == idl_boolean);
+                idl_printIndent (indent);
+                idl_fileOutPrintf (idl_fileCur(), "    %s[j%d] = (uint8_t) ((%s)%s);\n",
+                        to,
+                        loop_index-1,
+                        from,
+                        idl_seqIndex(loop_index));
             }
             break;
         default:

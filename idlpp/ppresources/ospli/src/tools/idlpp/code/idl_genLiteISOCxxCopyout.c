@@ -750,7 +750,13 @@ idl_arrayLoopCopyBody(
                     idl_arrayLoopCopyIndex(typeArray);
                     idl_fileOutPrintf(idl_fileCur(), ") : \"\");\n");
                 } else {
-                    idl_fileOutPrintf(idl_fileCur(), "%s = %s;\n", to, from);
+                    /* Only alternative non-contiguous primitive type is boolean. */
+                    assert(idl_typeBasicType(idl_typeBasic(idl_typeDefActual(idl_typeDef(typeSpec)))) == idl_boolean);
+                    idl_fileOutPrintf(idl_fileCur(), "(%s)", to);
+                    idl_arrayLoopCopyIndex(typeArray);
+                    idl_fileOutPrintf(idl_fileCur(), " = (bool) (%s", from);
+                    idl_arrayLoopCopyIndex(typeArray);
+                    idl_fileOutPrintf(idl_fileCur(), ");\n");
                 }
             break;
             case idl_tenum:
@@ -777,7 +783,13 @@ idl_arrayLoopCopyBody(
             idl_arrayLoopCopyIndex(typeArray);
             idl_fileOutPrintf(idl_fileCur(), ") : \"\");\n");
         } else {
-            assert(0);
+            /* Only alternative non-contiguous primitive type is boolean. */
+            assert(idl_typeBasicType(idl_typeBasic(typeSpec)) == idl_boolean);
+            idl_fileOutPrintf(idl_fileCur(), "(%s)", to);
+            idl_arrayLoopCopyIndex(typeArray);
+            idl_fileOutPrintf(idl_fileCur(), " = (bool) (%s", from);
+            idl_arrayLoopCopyIndex(typeArray);
+            idl_fileOutPrintf(idl_fileCur(), ");\n");
         }
     break;
     case idl_tseq:
@@ -963,12 +975,12 @@ idl_arrayElements(
     case idl_tbasic:
         /* QAC EXPECT 3416; No side effect here */
         IDL_PRINTLINE(indent);
-        if (idl_typeBasicType(idl_typeBasic(subType)) == idl_string) {
-            loopIndent = 0;
-            idl_arrayLoopCopy(typeArray, from, to, indent);
-        } else {
+        if (idl_isContiguous(idl_typeSpecDef(subType))) {
             idl_printIndent(indent);
             idl_fileOutPrintf(idl_fileCur(), "    memcpy ((void*)%s, (void*)%s, sizeof (*%s));\n", cpyTo, from, from);
+        } else {
+            loopIndent = 0;
+            idl_arrayLoopCopy(typeArray, from, to, indent);
         }
     break;
     case idl_tenum:
@@ -1187,7 +1199,7 @@ idl_seqLoopCopy(
             idl_fileOutPrintf(idl_fileCur(), "    (*%s)[j%d] = (*%s)[j%d] ? (*%s)[j%d] : \"\";\n",
                     to, loop_index-1, from, loop_index-1, from, loop_index-1);
         } else {
-            idl_fileOutPrintf(idl_fileCur(), "    (%s)[j%d] = (%s)(*%s)[j%d];\n",
+            idl_fileOutPrintf(idl_fileCur(), "    (*%s)[j%d] = (%s)(*%s)[j%d];\n",
                     to,
                     loop_index-1,
                     tmp_string2,
