@@ -48,8 +48,9 @@ idl_seqAllocBuffer(
     idl_typeSpec nextType = idl_typeSeqType(typeSeq);
 
     char* tmp_string = idl_scopedLiteTypeName(nextType);
-    snprintf(buffer, bsize, "(%s == 0) ? 0 : (uint8_t *)dds_alloc(%s * sizeof(%s))",
+    snprintf(buffer, bsize, "(%s == 0) ? 0 : (%s *)dds_alloc(%s * sizeof(%s))",
             length,
+            tmp_string,
             length,
             tmp_string);
     os_free(tmp_string);
@@ -409,6 +410,7 @@ idl_structureMemberOpenClose (
         /* QAC EXPECT 3416; No side effect here */
     } else if (idl_typeSpecType(typeSpec) == idl_tseq) {
         c_char *cxxTypeName, *scopedCxxTypeName;
+        const c_char *bufferTp;
         idl_typeSpec nextType;
 
         nextType = idl_typeSeqType(idl_typeSeq(typeSpec));
@@ -417,18 +419,28 @@ idl_structureMemberOpenClose (
         os_asprintf (&cxxTypeName, "_%s_seq", name);
         scopedCxxTypeName = idl_scopeStack(idl_typeUserScope(idl_typeUser(typeSpec)), "::", cxxTypeName);
 
+        switch (idl_typeSpecType(nextType)) {
+        case idl_tstruct:
+        case idl_tunion:
+            bufferTp = scopedTargetName;
+            break;
+        default:
+            bufferTp = "uint8_t";
+            break;
+        };
+
         idl_fileOutPrintf (idl_fileCur(), "    {\n");
         if (idl_isContiguous(idl_typeSpecDef(nextType))) {
                 IDL_PRINTLINE (indent);
                 idl_fileOutPrintf (idl_fileCur(), "        const %s *src = &from->%s();\n\n", scopedCxxTypeName, cid);
                 idl_fileOutPrintf (idl_fileCur(), "        to->%s._maximum = (uint32_t)(*src).max_size();\n", cid);
                 idl_fileOutPrintf (idl_fileCur(), "        to->%s._length  = (uint32_t)(*src).size();\n", cid);
-                idl_fileOutPrintf (idl_fileCur(), "        to->%s._buffer  = (uint8_t *)&((*src)[0]);\n", cid);
+                idl_fileOutPrintf (idl_fileCur(), "        to->%s._buffer  = (%s *)&((*src)[0]);\n", cid, bufferTp);
                 idl_fileOutPrintf (idl_fileCur(), "        to->%s._release = false;\n", cid);
         } else {
                 IDL_PRINTLINE (indent);
                 idl_fileOutPrintf (idl_fileCur(), "        const %s *src = &from->%s();\n", scopedCxxTypeName, cid);
-                idl_fileOutPrintf (idl_fileCur(), "        uint8_t *dest0;\n");
+                idl_fileOutPrintf (idl_fileCur(), "        %s *dest0;\n", scopedTargetName);
                 idl_fileOutPrintf (idl_fileCur(), "        uint32_t length0;\n\n");
                 idl_fileOutPrintf (idl_fileCur(), "        length0 = (uint32_t)(*src).size();\n");
                 idl_fileOutPrintf (idl_fileCur(), "        dest0 = %s;\n",
@@ -436,7 +448,7 @@ idl_structureMemberOpenClose (
                 idl_seqLoopCopy (nextType, "*src", "dest0", 1, 2, userData);
                 idl_fileOutPrintf (idl_fileCur(), "        to->%s._maximum = (uint32_t)(*src).max_size();\n", cid);
                 idl_fileOutPrintf (idl_fileCur(), "        to->%s._length  = length0;\n", cid);
-                idl_fileOutPrintf (idl_fileCur(), "        to->%s._buffer  = dest0;\n", cid);
+                idl_fileOutPrintf (idl_fileCur(), "        to->%s._buffer  = (%s *) dest0;\n", cid, bufferTp);
                 idl_fileOutPrintf (idl_fileCur(), "        to->%s._release = false;\n", cid);
         }
         idl_fileOutPrintf (idl_fileCur(), "    }\n");
