@@ -1169,7 +1169,7 @@ idl_makeConstLiteral(
             break;
         case V_BOOLEAN:
             val = os_malloc(40);
-            if (idl_getLanguage() == IDL_LANG_JAVA || idl_getLanguage() == IDL_LANG_CS) {
+            if (idl_getLanguage() == IDL_LANG_JAVA || idl_getLanguage() == IDL_LANG_CS || idl_getLanguage() == IDL_LANG_LITE_CXX) {
                 if (operand->value.is.Boolean) {
                     snprintf(val, 40, "true");
                 } else {
