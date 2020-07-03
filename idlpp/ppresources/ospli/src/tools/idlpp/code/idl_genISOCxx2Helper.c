@@ -273,6 +273,8 @@ ISOCxx2FromfullyScopedName(c_char *fullyScopedName)
             os_free(cxxName);
             name = os_strtok_r(NULL, ":", &savePtr);
         }
+    } else {
+        typeName = os_strdup("");
     }
 
     return typeName;
