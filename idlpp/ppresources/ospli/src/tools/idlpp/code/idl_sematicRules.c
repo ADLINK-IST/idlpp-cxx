@@ -1969,47 +1969,20 @@ idl_checkKeyListFieldName(
                             c_baseObject(subtype)->kind == M_PRIMITIVE)
                         {
                             primitiveType = c_primitive(subtype);
-                            if (primitiveType->kind != P_LONG &&
+                            if (primitiveType->kind != P_OCTET &&
+                                primitiveType->kind != P_SHORT &&
+                                primitiveType->kind != P_LONG &&
+                                primitiveType->kind != P_LONGLONG &&
+                                primitiveType->kind != P_USHORT &&
+                                primitiveType->kind != P_ULONG &&
+                                primitiveType->kind != P_ULONGLONG &&
+                                primitiveType->kind != P_FLOAT &&
+                                primitiveType->kind != P_DOUBLE &&
                                 primitiveType->kind != P_CHAR)
                             {
                                 result++;
                                 snprintf(errorBuffer, IDL_MAX_ERRORSIZE-1, errorText[idl_UnsupportedKeyType], keyMetaObj->name, name);
                                 rf(errorBuffer);
-                            }
-                            else if (primitiveType->kind == P_LONG) {
-                                /* check that type is 1 of the 9 builtin topics:
-                                 *   DDS.ParticipantBuiltinTopicData
-                                 *   DDS.TopicBuiltinTopicData
-                                 *   DDS.PublicationBuiltinTopicData
-                                 *   DDS.SubscriptionBuiltinTopicData
-                                 *   DDS.CMParticipantBuiltinTopicData
-                                 *   DDS.CMPublisherBuiltinTopicData
-                                 *   DDS.CMSubscriberBuiltinTopicData
-                                 *   DDS.CMDataWriterBuiltinTopicData
-                                 *   DDS.CMDataReaderBuiltinTopicData
-                                 */
-                                if (!scope->definedIn                                            /* if topic has no parent */
-                                    || scope->definedIn->name == 0                               /* if topic parent has no name */
-                                    || c_baseObject(scope->definedIn)->kind != M_MODULE          /* if topic parent is not a module */
-                                    || strcmp(scope->definedIn->name, "DDS") != 0                /* if topic parent is not DDS module */
-                                    || !scope->definedIn->definedIn                              /* if DDS module has no parent (DDS module should have root element as parent) */
-                                    || scope->definedIn->definedIn->definedIn                    /* if DDS module has a grand-parent (meaning that DDS module is not in root element) */
-                                    || (  strcmp(scope->name, "ParticipantBuiltinTopicData") != 0   /* if topic is not DDS.ParticipantBuiltinTopicData */
-                                       && strcmp(scope->name, "TopicBuiltinTopicData") != 0         /* if topic is not DDS.TopicBuiltinTopicData */
-                                       && strcmp(scope->name, "PublicationBuiltinTopicData") != 0   /* if topic is not DDS.PublicationBuiltinTopicData */
-                                       && strcmp(scope->name, "SubscriptionBuiltinTopicData") != 0  /* if topic is not DDS.SubscriptionBuiltinTopicData */
-                                       && strcmp(scope->name, "CMParticipantBuiltinTopicData") != 0 /* if topic is not DDS.CMParticipantBuiltinTopicData */
-                                       && strcmp(scope->name, "CMPublisherBuiltinTopicData") != 0   /* if topic is not DDS.CMPublisherBuiltinTopicData */
-                                       && strcmp(scope->name, "CMSubscriberBuiltinTopicData") != 0  /* if topic is not DDS.CMSubscriberBuiltinTopicData */
-                                       && strcmp(scope->name, "CMDataWriterBuiltinTopicData") != 0  /* if topic is not DDS.CMDataWriterBuiltinTopicData */
-                                       && strcmp(scope->name, "CMDataReaderBuiltinTopicData") != 0  /* if topic is not DDS.CMDataReaderBuiltinTopicData */
-                                       )
-                                    )
-                                {
-                                    result++;
-                                    snprintf(errorBuffer, IDL_MAX_ERRORSIZE-1, errorText[idl_UnsupportedKeyType], keyMetaObj->name, name);
-                                    rf(errorBuffer);
-                                }
                             }
                         } else {
                             /* not array or non-primitive array */
