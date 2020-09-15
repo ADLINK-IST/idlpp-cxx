@@ -1615,7 +1615,7 @@ idl_unionCaseSequence(
              idl_seqAllocBuffer(idl_typeSeq(typeSpec), "length0", buf, sizeof(buf)));
         idl_seqLoopCopy (seqTypeSpec, "*src", "dest0", 1, 2, userData);
         idl_fileOutPrintf (idl_fileCur(), "        to->_u.%s._length = length0;\n", memberName);
-        idl_fileOutPrintf (idl_fileCur(), "        to->_u.%s._buffer = (uint8_t *)dest0;\n", memberName);
+        idl_fileOutPrintf (idl_fileCur(), "        to->_u.%s._buffer = dest0;\n", memberName);
     }
     idl_fileOutPrintf (idl_fileCur(), "    }\n");
 
