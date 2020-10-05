@@ -1810,7 +1810,7 @@ idl_unionCaseOpenClose(
     void *userData)
 {
     c_char *memberName = idl_ISOCxx2Id(name);
-    c_char *scopedName = idl_scopedTypeName(typeSpec);
+    c_char *scopedNameCxx = idl_ISOCxx2TypeFromTypeSpec(typeSpec);
 
     /* QAC EXPECT 3416; No side effect here */
     if (idl_typeSpecType(typeSpec) == idl_tbasic) {
@@ -1837,7 +1837,7 @@ idl_unionCaseOpenClose(
         /* QAC EXPECT 3416; No side effect here */
     } else if (idl_typeSpecType(typeSpec) == idl_tenum) {
         idl_fileOutPrintf(idl_fileCur(), "        to->%s((%s)from->_u.%s);\n",
-            memberName, scopedName, memberName);
+            memberName, scopedNameCxx, memberName);
         idl_fileOutPrintf (idl_fileCur(), "    break;\n");
         /* QAC EXPECT 3416; No side effect here */
     } else if (idl_typeSpecType(typeSpec) == idl_tstruct ||
@@ -1857,7 +1857,7 @@ idl_unionCaseOpenClose(
         /* Do nothing, only to prevent dangling else-ifs QAC reports */
     }
 
-    os_free(scopedName);
+    os_free(scopedNameCxx);
     os_free(memberName);
 }
 
