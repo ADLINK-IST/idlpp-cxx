@@ -1760,9 +1760,9 @@ idl_valueFromLabelVal(
         case V_BOOLEAN:
             /* QAC EXPECT 3416; No side effect here */
             if ((int)idl_labelValueVal(idl_labelValue(labelVal)).is.Boolean == TRUE) {
-                snprintf(labelName, sizeof(labelName), "TRUE");
+                snprintf(labelName, sizeof(labelName), "true");
             } else {
-                snprintf(labelName, sizeof(labelName), "FALSE");
+                snprintf(labelName, sizeof(labelName), "false");
             }
         break;
         default:
