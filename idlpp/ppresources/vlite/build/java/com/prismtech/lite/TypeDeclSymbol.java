@@ -26,6 +26,16 @@ public class TypeDeclSymbol extends TypeDefSymbol
     return "Typedef = " + def;
   }
 
+  public ScopedName definition ()
+  {
+    return new ScopedName(def);
+  }
+
+  public boolean isRelative ()
+  {
+    return !def.startsWith("::");
+  }
+
   public boolean isInteger ()
   {
     return isint;
