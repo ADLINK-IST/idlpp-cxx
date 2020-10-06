@@ -359,8 +359,8 @@ idl_structureMemberOpenClose (
             IDL_PRINTLINE (indent);
             idl_fileOutPrintf (idl_fileCur(), "        extern void __%s__copyIn(const %s *, %s *);\n",
             		scopedTypeName,
-                    scopedCxxTypeName,
-                    scopedTypeName);
+                        "void"/*scopedCxxTypeName*/,
+                        "void"/*scopedTypeName*/);
             idl_fileOutPrintf (idl_fileCur(), "        __%s__copyIn(&from->%s(), &to->%s);\n",
             		scopedTypeName,
                     cid,
