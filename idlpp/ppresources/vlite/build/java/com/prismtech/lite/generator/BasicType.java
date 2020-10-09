@@ -46,6 +46,11 @@ public class BasicType extends AbstractType
     return new BasicType (type);
   }
 
+  public boolean containsUnion ()
+  {
+    return false;
+  }
+
   public ArrayList <String> getMetaOp (String myname, String structname)
   {
     ArrayList <String> result = new ArrayList <String> (1);
