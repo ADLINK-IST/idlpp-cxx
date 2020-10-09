@@ -14,7 +14,8 @@ public class SequenceType extends AbstractType
       realsub = ((TypedefType)realsub).getRef ();
     }
     ctype = "dds_sequence_t";
-    this.bound = bound;
+    this.xmlbound = bound;
+    this.bound = 0;
   }
 
   private SequenceType (Type subtype, String ctype, long bound)
@@ -26,7 +27,8 @@ public class SequenceType extends AbstractType
       realsub = ((TypedefType)realsub).getRef ();
     }
     this.ctype = ctype;
-    this.bound = bound;
+    this.xmlbound = bound;
+    this.bound = 0;
   }
 
   public Type dup ()
@@ -37,6 +39,16 @@ public class SequenceType extends AbstractType
   public SequenceType clone (String name)
   {
     return new SequenceType (subtype.dup (), name, bound);
+  }
+
+  public boolean containsUnion ()
+  {
+    Type t = subtype;
+    while (t instanceof TypedefType)
+    {
+      t = ((TypedefType)t).getRef ();
+    }
+    return t.containsUnion ();
   }
 
   public ArrayList <String> getMetaOp (String myname, String structname)
@@ -53,21 +65,51 @@ public class SequenceType extends AbstractType
       offset = "0u";
     }
 
-    result.add (new String
-    (
-      "DDS_OP_ADR | DDS_OP_TYPE_SEQ | " + realsub.getSubOp () + ", " +
-      offset + ", " + Long.toString (bound)
-    ));
+    // Bounded sequences were added in an incompatible manner in this fork of the IDL
+    // compiler, the correct way would have been to add a new opcode because the encoding
+    // understood by the serializer doesn't have room for a bound
+    //
+    // Given that this compiler is end-of-life and bounded sequences currently have no
+    // effect anyway on the type or the encoding, only on the handling of samples
+    // containing oversize sequences (and no application should ever generate those), the
+    // pragmatic fix is to ignore the sequence bound.
+    if (bound == 0)
+    {
+      result.add (new String
+      (
+        "DDS_OP_ADR | DDS_OP_TYPE_SEQ | " + realsub.getSubOp () + ", " +
+        offset
+      ));
+    }
+    else
+    {
+      result.add (new String
+      (
+        "DDS_OP_ADR | DDS_OP_TYPE_BSQ | " + realsub.getSubOp () + ", " +
+        offset + ", " + Long.toString (bound)
+      ));
+    }
 
     if (!(realsub instanceof BasicType))
     {
       if (realsub instanceof BoundedStringType)
       {
-        result.add ("0, " + Long.toString (((BoundedStringType)realsub).getBound () + 1));
+        if (bound != 0)
+        {
+          result.add ("0, ");
+        }
+        result.add (Long.toString (((BoundedStringType)realsub).getBound () + 1));
       }
       else
       {
-        result.add (new String ("(" + new Integer (getMetaOpSize ()) + "u << 16u) + 5u, sizeof (" + realsub.getCType () + ")"));
+        if (bound != 0)
+        {
+          result.add (new String ("(" + new Integer (getMetaOpSize ()) + "u << 16u) + 5u, sizeof (" + realsub.getCType () + ")"));
+        }
+        else
+        {
+          result.add (new String ("sizeof (" + realsub.getCType () + "), (" + new Integer (getMetaOpSize ()) + "u << 16u) + 4u"));
+        }
         result.addAll (realsub.getMetaOp (null, null));
         result.add (new String ("DDS_OP_RTS"));
       }
@@ -99,17 +141,17 @@ public class SequenceType extends AbstractType
   {
     if (realsub instanceof BasicType)
     {
-      return 3;
+      return (bound == 0) ? 2 : 3;
     }
     else
     {
       if (realsub instanceof BoundedStringType)
       {
-        return 5;
+        return (bound == 0) ? 3 : 5;
       }
       else
       {
-        return 6 + realsub.getMetaOpSize ();
+        return ((bound == 0) ? 5 : 6) + realsub.getMetaOpSize ();
       }
     }
   }
@@ -122,9 +164,9 @@ public class SequenceType extends AbstractType
   public void getXML (StringBuffer str, ModuleContext mod)
   {
     str.append ("<Sequence");
-    if (bound != 0)
+    if (xmlbound != 0)
     {
-      str.append (" size=\\\"" + Long.toString (bound) + "\\\"");
+      str.append (" size=\\\"" + Long.toString (xmlbound) + "\\\"");
     }
     str.append (">");
     subtype.getXML (str, mod);
@@ -144,5 +186,6 @@ public class SequenceType extends AbstractType
   private final Type subtype;
   private Type realsub;
   private final String ctype;
+  private final long xmlbound;
   private final long bound;
 }
