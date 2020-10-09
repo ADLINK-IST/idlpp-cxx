@@ -198,7 +198,10 @@ public class GenVisitor extends com.prismtech.lite.parser.IDLBaseVisitor <Void>
       if (oldstate.member != null)
       {
         oldstate.type = state.structMeta;
-        oldstate.decl_ctx.add ("declarations", state.struct);
+        if (generate)
+        {
+          oldstate.decl_ctx.add ("declarations", state.struct);
+        }
         oldstate.member.add ("type", state.struct.getAttribute ("name"));
         oldstate.member.add ("scope", state.struct.getAttribute ("scope"));
       }
@@ -766,7 +769,10 @@ public class GenVisitor extends com.prismtech.lite.parser.IDLBaseVisitor <Void>
 
     if (oldstate.member != null)
     {
-      oldstate.decl_ctx.add ("declarations", state.s_unionST);
+      if (generate)
+      {
+        oldstate.decl_ctx.add ("declarations", state.s_unionST);
+      }
       oldstate.member.add ("type", unionname);
       oldstate.setScope (state.member);
       oldstate.type = state.s_union;
