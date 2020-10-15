@@ -734,9 +734,9 @@ idl_arrayLoopCopyBody(
                 IDL_PRINTLINE (loopIndent + indent-1);
                 idl_printIndent (loopIndent + indent);
                 idl_fileOutPrintf(idl_fileCur(), "extern void __%s__copyIn(", scopedTypeName);
-                idl_fileOutPrintf(idl_fileCur(), "const %s *,", scopedCxxTypeName);
+                idl_fileOutPrintf(idl_fileCur(), "const void *,");
 
-                idl_fileOutPrintf(idl_fileCur(), "%s *);\n\n", scopedTypeName);
+                idl_fileOutPrintf(idl_fileCur(), "void *);\n\n");
                 idl_printIndent(loopIndent + indent);
                 idl_fileOutPrintf (idl_fileCur(),"__%s__copyIn((const %s *)&(%s)",
 					scopedTypeName,
@@ -1421,9 +1421,11 @@ idl_typedefOpenClose (
     case idl_tarray:
         idl_fileOutPrintf (idl_fileCur(), "void\n");
         idl_fileOutPrintf (idl_fileCur(), "__%s__copyIn(\n", scopedTypeName);
-        idl_fileOutPrintf (idl_fileCur(), "    const %s *from,\n", scopedCxxTypeName);
-        idl_fileOutPrintf (idl_fileCur(), "    %s *to)\n", scopedTypeName);
+        idl_fileOutPrintf (idl_fileCur(), "    const void *_from,\n");
+        idl_fileOutPrintf (idl_fileCur(), "    void *_to)\n");
         idl_fileOutPrintf (idl_fileCur(), "{\n");
+        idl_fileOutPrintf (idl_fileCur(), "    const %s *from = (const %s *)_from;\n", scopedCxxTypeName, scopedCxxTypeName);
+        idl_fileOutPrintf (idl_fileCur(), "    %s *to = (%s *)_to;\n", scopedTypeName, scopedTypeName);
         idl_arrayElements (scope, idl_typeArray(idl_typeDefActual(defSpec)), "from", "to", TRUE, 0, userData);
         idl_fileOutPrintf (idl_fileCur(), "}\n");
         idl_fileOutPrintf (idl_fileCur(), "\n");
@@ -1431,9 +1433,11 @@ idl_typedefOpenClose (
     case idl_tseq:
         idl_fileOutPrintf (idl_fileCur(), "void\n");
         idl_fileOutPrintf (idl_fileCur(), "__%s__copyIn(\n", scopedTypeName);
-        idl_fileOutPrintf (idl_fileCur(), "    const %s *from,\n", scopedCxxTypeName);
-        idl_fileOutPrintf (idl_fileCur(), "    %s *to)\n", scopedTypeName);
+        idl_fileOutPrintf (idl_fileCur(), "    const void *_from,\n");
+        idl_fileOutPrintf (idl_fileCur(), "    void *_to)\n");
         idl_fileOutPrintf (idl_fileCur(), "{\n");
+        idl_fileOutPrintf (idl_fileCur(), "    const %s *from = (const %s *)_from;\n", scopedCxxTypeName, scopedCxxTypeName);
+        idl_fileOutPrintf (idl_fileCur(), "    %s *to = (%s *)_to;\n", scopedTypeName, scopedTypeName);
         idl_seqElements (scopedCxxTypeName, defSpec, 0, userData);
         idl_fileOutPrintf (idl_fileCur(), "}\n");
         idl_fileOutPrintf (idl_fileCur(), "\n");
@@ -1641,15 +1645,8 @@ idl_unionCaseType(
     scopedTypeName = idl_scopedTypeName(typeSpec);
     scopedCxxTypeName = idl_ISOCxx2TypeFromTypeSpec(typeSpec);
 
-    if (idl_typeSpecType(typeSpec) == idl_ttypedef) {
-        idl_fileOutPrintf (idl_fileCur(), "        extern void __%s__copyIn(const %s *, %s *);\n",
-        		scopedTypeName,
-                scopedCxxTypeName,
-                scopedTypeName);
-    } else {
-        idl_fileOutPrintf (idl_fileCur(), "        extern void __%s__copyIn(const void *, void *);\n",
-        		scopedTypeName);
-    }
+    idl_fileOutPrintf (idl_fileCur(), "        extern void __%s__copyIn(const void *, void *);\n",
+                       scopedTypeName);
 
     idl_fileOutPrintf (idl_fileCur(), "        __%s__copyIn(&from->%s(), &to->_u.%s);\n",
         scopedTypeName, memberName, memberName);
