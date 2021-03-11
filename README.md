@@ -1,6 +1,8 @@
 # CXX Idl compiler for CycloneDDS
 
-This project provides an idl compiler to compile datatypes that can be used in the CXX API for [CycloneDDS](https://github.com/eclipse-cyclonedds/cyclonedds/) 
+This project provides an idl compiler to compile datatypes that can be used in the CXX API for [CycloneDDS](https://github.com/eclipse-cyclonedds/cyclonedds/)
+
+This compiler will be replaced with our new idl compiler which is currently under development [here](https://github.com/eclipse-cyclonedds/cyclonedds-cxx/tree/idlcxx)
 
 ## Requirements for the CXX Idl compiler
 
