@@ -61,8 +61,7 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "CXX Idl compiler")
 
 
 # WiX requires a .txt file extension for CPACK_RESOURCE_FILE_LICENSE
-file(COPY "${PROJECT_SOURCE_DIR}/LICENSE" DESTINATION "${CMAKE_BINARY_DIR}")
-file(RENAME "${CMAKE_BINARY_DIR}/LICENSE" "${CMAKE_BINARY_DIR}/license.txt")
+configure_file("${PROJECT_SOURCE_DIR}/LICENSE" "${CMAKE_BINARY_DIR}/license.txt" COPYONLY)
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_BINARY_DIR}/license.txt")
 
 # Packages could be generated on alien systems. e.g. Debian packages could be
